@@ -26,13 +26,28 @@ const DIFFICULTY_LEVELS = [
 
 const SNAP_THRESHOLD = 15; // Percent
 
-// -- Sound System --
+// -- Singleton Audio Context for iOS Compatibility --
+let globalAudioCtx: AudioContext | null = null;
+
+const initAudio = () => {
+  if (!globalAudioCtx) {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContext) {
+      globalAudioCtx = new AudioContext();
+    }
+  }
+  // iOS requires resuming context after user interaction
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume();
+  }
+  return globalAudioCtx;
+};
+
 const playSound = (type: 'snap' | 'win' | 'click' | 'unlock' | 'error') => {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
+    const ctx = initAudio();
+    if (!ctx) return;
     
-    const ctx = new AudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -63,15 +78,34 @@ const playSound = (type: 'snap' | 'win' | 'click' | 'unlock' | 'error') => {
       osc.start();
       osc.stop(ctx.currentTime + 0.2);
     } else if (type === 'unlock') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, ctx.currentTime);
-      osc.frequency.setValueAtTime(600, ctx.currentTime + 0.1);
-      osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.2);
+      // Mechanical unlock sound (using the main oscillator)
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.2);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
       osc.start();
-      osc.stop(ctx.currentTime + 0.5);
+      osc.stop(ctx.currentTime + 0.1);
+
+      // Magical Sparkles (additional oscillators)
+      const now = ctx.currentTime;
+      [1046.50, 1318.51, 1568.0, 2093.00].forEach((freq, i) => {
+         const sparkOsc = ctx.createOscillator();
+         const sparkGain = ctx.createGain();
+         sparkOsc.connect(sparkGain);
+         sparkGain.connect(ctx.destination);
+         
+         sparkOsc.type = 'sine';
+         sparkOsc.frequency.value = freq;
+         
+         const startTime = now + 0.1 + (i * 0.06);
+         sparkGain.gain.setValueAtTime(0, startTime);
+         sparkGain.gain.linearRampToValueAtTime(0.05, startTime + 0.05); // low volume for high pitch
+         sparkGain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.0);
+         
+         sparkOsc.start(startTime);
+         sparkOsc.stop(startTime + 1.0);
+      });
     } else if (type === 'win') {
       // Simple arpeggio
       const now = ctx.currentTime;
@@ -350,7 +384,7 @@ export default function App() {
   const MathModal = () => {
      if (!showMathModal) return null;
      return (
-       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in touch-none">
          <div className="bg-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl border-4 border-indigo-500">
            <div className="bg-indigo-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
              <Calculator size={40} className="text-indigo-600" />
@@ -393,7 +427,7 @@ export default function App() {
   };
 
   const MenuScreen = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-400 to-blue-600 p-4 animate-fade-in text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-400 to-blue-600 p-4 animate-fade-in text-center scroll-container">
       <h1 className="text-5xl sm:text-7xl font-black text-yellow-300 drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)] mb-8 tracking-wider transform -rotate-2">
         PusselMagi
       </h1>
@@ -415,7 +449,14 @@ export default function App() {
         </div>
 
         <button 
-          onClick={() => { if(!isMuted) playSound('click'); setScreen('theme'); }}
+          onClick={() => { 
+            // Crucial for iOS: Initialize audio on first user gesture
+            if(!isMuted) {
+              initAudio(); 
+              playSound('click'); 
+            }
+            setScreen('theme'); 
+          }}
           className="w-full bg-green-500 hover:bg-green-400 text-white text-3xl font-black py-6 rounded-2xl shadow-[0_8px_0_rgb(21,128,61)] active:shadow-none active:translate-y-2 transition-all flex items-center justify-center gap-4 group"
         >
           <Play size={36} className="group-hover:scale-125 transition-transform" fill="currentColor"/>
@@ -424,7 +465,7 @@ export default function App() {
 
         <p className="mt-6 text-blue-100 font-medium opacity-80">Ett magiskt äventyr för små genier</p>
       </div>
-      <button onClick={() => setIsMuted(!isMuted)} className="absolute top-4 right-4 p-3 bg-white/20 rounded-full hover:bg-white/30 text-white">
+      <button onClick={() => { initAudio(); setIsMuted(!isMuted); }} className="absolute top-4 right-4 p-3 bg-white/20 rounded-full hover:bg-white/30 text-white z-50">
         {isMuted ? <VolumeX /> : <Volume2 />}
       </button>
     </div>
@@ -443,7 +484,7 @@ export default function App() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 content-start overflow-y-auto pb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 content-start overflow-y-auto pb-8 scroll-container">
         {THEMES.map(t => (
           <div key={t.id} className="flex flex-col gap-3 p-4 bg-slate-800/50 rounded-3xl border-2 border-white/5 shadow-xl">
              <div className={`h-20 ${t.color} rounded-2xl flex items-center justify-center gap-4 shadow-inner mb-2`}>
@@ -451,7 +492,7 @@ export default function App() {
                <h3 className="text-3xl font-black text-white/90 tracking-wide uppercase">{t.label}</h3>
              </div>
              
-             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {DIFFICULTY_LEVELS.map((lvl, index) => {
                   const isLocked = index > stats.highestUnlockedLevelIndex;
                   return (
@@ -497,7 +538,7 @@ export default function App() {
     const aspectRatio = gridConfig.cols / gridConfig.rows;
     
     return (
-    <div className="flex flex-col h-screen bg-slate-800 touch-none overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-800 touch-none overflow-hidden fixed inset-0">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-slate-900 shadow-md z-20">
         <button onClick={() => { if(!isMuted) playSound('click'); setScreen('theme'); }} className="p-3 bg-white/10 rounded-xl hover:bg-white/20 active:scale-95 transition">
@@ -606,7 +647,7 @@ export default function App() {
     else if (timeElapsed < parTime * 2) earnedStars = 2;
 
     return (
-    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-fade-in text-center">
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-fade-in text-center scroll-container">
       <Confetti />
       
       <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl transform transition-all scale-100 border-4 border-yellow-400">

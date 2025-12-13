@@ -33,7 +33,7 @@ export const PuzzlePiece: React.FC<PuzzlePieceProps> = ({
     <div
       onPointerDown={(e) => onPointerDown(e, piece.id)}
       className={`puzzle-piece absolute border-2 border-white/80 box-border rounded-md overflow-hidden ${
-        piece.isPlaced ? 'placed' : ''
+        piece.isPlaced ? 'placed animate-snap' : ''
       } ${isDragging ? 'dragging' : ''}`}
       style={{
         width: `${widthPercent}%`,

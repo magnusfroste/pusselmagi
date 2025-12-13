@@ -8,8 +8,11 @@
     <style>
       /* Prevent scrolling while dragging on touch devices */
       body {
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: none;
         touch-action: none;
+        -webkit-user-select: none; /* Safari */
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
       .puzzle-piece {
         touch-action: none;
@@ -27,12 +30,27 @@
         filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.4));
         transform: scale(1.05);
       }
+      /* Smooth scrolling for iOS */
+      .scroll-container {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+      }
       @keyframes pop {
         0% { transform: scale(0.8); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
       }
       .animate-pop {
         animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      /* New animation for piece snapping */
+      @keyframes snap-bounce {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.05); filter: brightness(1.2); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+      .animate-snap {
+        animation: snap-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
     </style>
   <script type="importmap">
@@ -47,7 +65,7 @@
 }
 </script>
 </head>
-  <body class="bg-slate-900 text-white overflow-hidden select-none">
-    <div id="root"></div>
+  <body class="bg-slate-900 text-white overflow-hidden select-none fixed inset-0">
+    <div id="root" class="h-full w-full"></div>
   </body>
 </html>
