@@ -5,6 +5,8 @@ fingrarna eller musen – från 4 bitar upp till 36.
 
 **Spela:** https://pusselmagi.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
+![Pusselmagi](public/kort.png)
+
 Började som ett Google AI Studio-projekt och körs nu fristående. Bilder och beröm skapades först
 med AI; nu skapas de lokalt i webbläsaren.
 
