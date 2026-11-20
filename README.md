@@ -52,7 +52,7 @@ Servern ligger bakom nginx med `deploy/nginx.conf`.
 ```
 App.tsx                    menyer, nivåer, spelplan, poäng, ljud
 lib/artwork.ts             ritar pusselbilder och skapar beröm lokalt
-services/geminiService.ts  kopplar beröm och teman (namnet är kvar, ingen Gemini)
+services/praiseService.ts  kopplar beröm och teman
 components/PuzzlePiece.tsx en pusselbit
 components/Confetti.tsx    konfetti
 deploy/nginx.conf          nginx-konfiguration

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Theme, Piece, PlayerStats } from './types';
-import { generatePraise, getThemeImagePrompt } from './services/geminiService';
+import { generatePraise, getThemeImagePrompt } from './services/praiseService';
 import { PuzzlePiece } from './components/PuzzlePiece';
 import { Confetti } from './components/Confetti';
 import { Play, Star, Trophy, ArrowLeft, RefreshCw, Volume2, VolumeX, Eye, EyeOff, Loader2, Lock, Unlock, Calculator } from 'lucide-react';
