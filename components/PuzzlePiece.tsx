@@ -40,7 +40,7 @@ export const PuzzlePiece: React.FC<PuzzlePieceProps> = ({
         height: `${heightPercent}%`,
         left: `${piece.currentX}%`,
         top: `${piece.currentY}%`,
-        backgroundImage: `url(${imgUrl})`,
+        backgroundImage: `url("${imgUrl}")`,
         backgroundSize: `${cols * 100}% ${rows * 100}%`,
         backgroundPositionX: `${bgX}%`,
         backgroundPositionY: `${bgY}%`,

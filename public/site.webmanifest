@@ -1,0 +1,23 @@
+{
+  "name": "Pusselmagi",
+  "short_name": "Pusselmagi",
+  "description": "Pusselmagi är ett pussel för barn där bitarna dras på plats med fingret. Fyra teman – djur, rymden, natur och sagor – och bilderna ritas i webbläsaren, så inget hämtas utifrån. Fungerar utan konto och utan nät.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7c3aed",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "scope": "/",
+  "lang": "sv"
+}
