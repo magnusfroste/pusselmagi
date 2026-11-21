@@ -1,12 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 import { Theme } from "../types";
 
-// Initialize Gemini
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Gemini-klienten skapas forst nar den behovs: appen maste fungera utan API-nyckel.
+let ai: GoogleGenAI | null = null;
+const getGeminiClient = (): GoogleGenAI | null => {
+  if (ai) return ai;
+  const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process as any).env?.API_KEY;
+  if (!apiKey) return null;
+  ai = new GoogleGenAI({ apiKey });
+  return ai;
+};
 
 export const generatePraise = async (theme: Theme, timeSeconds: number, rows: number, cols: number): Promise<string> => {
   try {
-    const model = ai.models;
+    const client = getGeminiClient();
+    if (!client) throw new Error('Ingen API-nyckel: anvander lokal berommelse');
+    const model = client.models;
     
     // Swedish prompt for localization
     const prompt = `
