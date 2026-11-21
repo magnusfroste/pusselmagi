@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Theme, Piece, PlayerStats } from './types';
-import { generatePraise, getThemeImagePrompt } from './services/geminiService';
+import { generatePraise, getThemeImagePrompt } from './services/praiseService';
 import { PuzzlePiece } from './components/PuzzlePiece';
 import { Confetti } from './components/Confetti';
 import { Play, Star, Trophy, ArrowLeft, RefreshCw, Volume2, VolumeX, Eye, EyeOff, Loader2, Lock, Unlock, Calculator } from 'lucide-react';
+import { buildPuzzleImage } from './lib/artwork';
 
 // -- Constants --
 const THEMES: { id: Theme; label: string; color: string; icon: string }[] = [
@@ -236,12 +237,12 @@ export default function App() {
     setJustUnlockedLevel(false);
     
     // Generate Image URL
-    const seed = Math.random().toString(36).substring(7);
     const baseSize = 800;
     const aspect = cols / rows;
     const imgW = aspect >= 1 ? baseSize : Math.round(baseSize * aspect);
     const imgH = aspect >= 1 ? Math.round(baseSize / aspect) : baseSize;
-    const newImgUrl = `https://picsum.photos/seed/${seed}${selectedTheme}/${imgW}/${imgH}`;
+    // Bilden ritas lokalt i webbläsaren (SVG) – inga externa bildtjänster.
+    const newImgUrl = buildPuzzleImage(selectedTheme, Math.floor(Math.random() * 1e6), imgW, imgH);
     setImgUrl(newImgUrl);
 
     // Create Pieces
