@@ -5,6 +5,7 @@ import { PuzzlePiece } from './components/PuzzlePiece';
 import { Confetti } from './components/Confetti';
 import { Play, Star, Trophy, ArrowLeft, RefreshCw, Volume2, VolumeX, Eye, EyeOff, Loader2, Lock, Unlock, Calculator } from 'lucide-react';
 import { buildPuzzleImage } from './lib/artwork';
+import { report } from './lib/skolappar';
 
 // -- Constants --
 const THEMES: { id: Theme; label: string; color: string; icon: string }[] = [
@@ -219,6 +220,7 @@ export default function App() {
       startGame(theme, lvl.rows, lvl.cols);
     } else {
       if (!isMuted) playSound('error');
+      report('hint');
       // Shake animation logic could go here
       setMathInput('');
     }
@@ -235,6 +237,8 @@ export default function App() {
     setPraise('');
     setShowHint(false);
     setJustUnlockedLevel(false);
+    report('round_start');
+    report('level', DIFFICULTY_LEVELS.findIndex(l => l.rows === rows && l.cols === cols) + 1);
     
     // Generate Image URL
     const baseSize = 800;
@@ -339,6 +343,7 @@ export default function App() {
   const handleWin = async () => {
     setIsPlaying(false);
     if (!isMuted) playSound('win');
+    report('round_done', 100); // every piece is in place
     if (timerRef.current) clearInterval(timerRef.current);
     
     // Calculate Score
@@ -466,7 +471,7 @@ export default function App() {
 
         <p className="mt-6 text-blue-100 font-medium opacity-80">Ett magiskt äventyr för små genier</p>
       </div>
-      <button onClick={() => { initAudio(); setIsMuted(!isMuted); }} className="absolute top-4 right-4 p-3 bg-white/20 rounded-full hover:bg-white/30 text-white z-50">
+      <button onClick={() => { initAudio(); if (!isMuted) report('sound_off'); setIsMuted(!isMuted); }} className="absolute top-4 right-4 p-3 bg-white/20 rounded-full hover:bg-white/30 text-white z-50">
         {isMuted ? <VolumeX /> : <Volume2 />}
       </button>
     </div>
@@ -552,7 +557,7 @@ export default function App() {
         </div>
         <div className="flex gap-2">
             <button 
-                onClick={() => setShowHint(!showHint)} 
+                onClick={() => { if (!showHint) report('hint'); setShowHint(!showHint); }} 
                 className={`p-3 rounded-xl transition ${showHint ? 'bg-yellow-400 text-slate-900' : 'bg-white/10 text-white'}`}
                 title="Visa bild"
             >
