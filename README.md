@@ -3,7 +3,7 @@
 Ett bildpussel för förskolan till åk 3. Barnet väljer tema och lägger pusselbitarna på plats med
 fingrarna eller musen – från 4 bitar upp till 36.
 
-**Spela:** https://pusselmagi.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
+**Spela:** https://pusselmagi.skolappar.org · En del av [Skolappar](https://www.skolappar.org) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
 ![Pusselmagi](public/kort.png)
 

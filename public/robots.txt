@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pusselmagi.skolappar.com/sitemap.xml
+Sitemap: https://pusselmagi.skolappar.org/sitemap.xml
